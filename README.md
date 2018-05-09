@@ -1,3 +1,2 @@
 # championsPredictor
-Fuck this shit
-A huevo!
+This thing will be popping more than Dragons! Viva la rebolution!
