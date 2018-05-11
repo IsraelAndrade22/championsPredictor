@@ -8,8 +8,9 @@ Match <- dbGetQuery(db,"Select * from Match")
 League <- dbGetQuery(db,"Select * from League")
 Team <- dbGetQuery(db,"Select * from Team")
 
-Team = na.omit(Team)
-Match =  na.omit(Match)
+Team = Team[,colMeans(is.na(Team)) == 0] 
+Match = Match[,colMeans(is.na(Match)) == 0] 
+
 summary(Match)
 summary(Team)
 
