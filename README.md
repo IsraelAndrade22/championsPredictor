@@ -1,2 +1,2 @@
 # championsPredictor
-This thing will be popping more than Dragons! Viva la rebolution!
+This thing will be popping more than Dragons! Viva la revolution!
