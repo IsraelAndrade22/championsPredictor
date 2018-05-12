@@ -83,20 +83,20 @@ names(new_match_data)[names(new_match_data)=="home_team_api_id"]<-"team_id"
 
 #Sort the teams based on the winning percentage
 sorted_data <- new_match_data[order(-new_match_data$win_percentage),]
-barplot(sorted_data[0:10,]$win_percentage, names.arg=sorted_data[0:10,]$team_name, las = 2, col = "blue", main = "Top 10 winning percentages")
+barplot(sorted_data[0:10,]$win_percentage, names.arg=sorted_data[0:10,]$team_name, ylab = "Winning Percentage", las = 2, col = "blue", main = "Top 10 winning percentages")
 
 
 #Find Best teams in England's England Premier League
 english_team <- sorted_data[sorted_data$country=="England",]
 england <- english_team[order(-english_team$win_percentage),][1:10,]
-barplot(england$win_percentage, names.arg=england$team_name, las = 2, col = "blue", main = "Top 10 teams in Premier League")
+barplot(england$win_percentage, names.arg=england$team_name, ylab = "Winning Percentage", las = 2, col = "blue", main = "Top 10 teams in Premier League")
 
 #Find the top teams from spain league
 spain_teams <- sorted_data[sorted_data$country=="Spain",]
 spain <- spain_teams[order(-spain_teams$win_percentage),][1:10,]
-barplot(spain$win_percentage, names.arg=spain$team_name, las = 2, col = "blue", main = "Top 10 teams in Bundesliga League")
+barplot(spain$win_percentage, names.arg=spain$team_name, ylab = "Winning Percentage", las = 2, col = "blue", main = "Top 10 teams in Bundesliga League")
 axis(1,cex.axis=1)
 #Find top teams in Germany's l Bundesliga League
 german_team <- sorted_data[sorted_data$country=="Germany",]
 germany <- german_team[order(-german_team$win_percentage),][1:10,]
-barplot(germany$win_percentage, names.arg=germany$team_name, las = 2, col = "blue", main = "Top 10 teams in Bundesliga League")
+barplot(germany$win_percentage, names.arg=germany$team_name, ylab = "Winning Percentage", las = 2, col = "blue", main = "Top 10 teams in Bundesliga League")
