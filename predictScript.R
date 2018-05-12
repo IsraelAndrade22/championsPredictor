@@ -14,6 +14,8 @@ head(Match)
 Match = replace(Match, is.na(Match), 0)
 Team = replace(Team, is.na(Team), 0)
 
+Match[12:78] = NULL
+Match[19:48] = NULL
 
 summary(Match)
 summary(Team)
