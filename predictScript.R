@@ -35,8 +35,8 @@ new_match_data$win_percentage = 0
 new_match_data$country = ""
 new_match_data$team_name = ""
 
-# delete duplicate column
-new_match_data[3] = NULL
+# rename duplicate column
+names(new_match_data)[3]<-"away_team_api_id"
 names(new_match_data)[names(new_match_data)=="Var1"] <- "home_team_api_id"
 head(new_match_data)
 for(row1 in rownames(new_match_data))
@@ -46,4 +46,39 @@ for(row1 in rownames(new_match_data))
   new_match_data$team_name[as.numeric(row1)] <- Team$team_long_name[Team$team_api_id==new_match_data$home_team_api_id[as.numeric(row1)]]
 }
 
+#Iterate over all the teams ids 
+for(id in rownames(new_match_data))
+{
+  #win_count stores the number of wins if the current team has scored more goals than the opponent team.
+  win_count = 0 
+  #Find all the records in main "Match" table which match the current team id
+  home_indexes = which(Match$home_team_api_id == new_match_data$home_team_api_id[as.numeric(id)])
+  away_indexes = which(Match$away_team_api_id == new_match_data$away_team_api_id[as.numeric(id)])
+  
+  for(i in home_indexes)
+  {
+    if(Match$home_team_goal[i]>Match$away_team_goal[i])
+    {
+      win_count = win_count +1 
+    }
+  }
+  for(i in away_indexes)
+  {
+    if(Match$away_team_goal[i]>Match$home_team_goal[i])
+    {
+      win_count = win_count + 1
+    }
+  }
+  
+  new_match_data$wins[as.numeric(id)] <- win_count
+  new_match_data$win_percentage[as.numeric(id)] <- as.double(win_count/new_match_data$total_matches[as.numeric(id)]*100)
+}
 
+#Drop Away_team_id column and change home_team_api_id columns name to team_id
+drop_columns <- c("away_team_api_id")
+new_match_data <- new_match_data[ , !names(new_match_data) %in% drop_columns]
+names(new_match_data)[names(new_match_data)=="home_team_api_id"]<-"team_id"
+
+#Sort the teams based on the winning percentage
+sorted_data <- new_match_data[order(-new_match_data$win_percentage),]
+print(sorted_data[0:10,])
