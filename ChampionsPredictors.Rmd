@@ -1,5 +1,5 @@
 ---
-title: "Champions Predictor"
+title: "UEFA Champions Cup Winner Predictor"
 author: "Noe Lomeli, Michael Sanchez, Israel Andrade"
 date: "5/12/2018"
 output: html_document
@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ##Introduction: 
-This project tries to predicted how well a European team is set to performe in the champions league. The data that was collected consisted of 
+This project tries to predicted how well a European team is set to perform in the Champions league tournament. The data that was collected consisted of 
 11 European Countries, +10,000 players, +25,000 matches from seasons 2008 to 2016.
 
 ###Data Cleaning: 
@@ -25,13 +25,16 @@ Team <- dbGetQuery(db,"Select * from Team")
 
 head(Match)
 
+Match[12:78] = NULL
+Match[19:48] = NULL
+
+#  convert columns 12 -18 to numeric
+Match[, 12:18] <- sapply(Match[, 12:18], as.numeric)
+
 #replace all NAs with 0s
 Match = replace(Match, is.na(Match), 0)
 Team = replace(Team, is.na(Team), 0)
-
-
 summary(Match)
-summary(Team)
 str(Match)
 
 
