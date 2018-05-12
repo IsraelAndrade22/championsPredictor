@@ -10,15 +10,18 @@ Team <- dbGetQuery(db,"Select * from Team")
 
 head(Match)
 
-#replace all NAs with 0s
-Match = replace(Match, is.na(Match), 0)
-Team = replace(Team, is.na(Team), 0)
+
 
 Match[12:78] = NULL
 Match[19:48] = NULL
 
+#  convert columns 12 -18 to numeric
+Match[, 12:18] <- sapply(Match[, 12:18], as.numeric)
+
+#replace all NAs with 0s
+Match = replace(Match, is.na(Match), 0)
+Team = replace(Team, is.na(Team), 0)
 summary(Match)
-summary(Team)
 str(Match)
 
 
