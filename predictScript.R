@@ -81,4 +81,4 @@ names(new_match_data)[names(new_match_data)=="home_team_api_id"]<-"team_id"
 
 #Sort the teams based on the winning percentage
 sorted_data <- new_match_data[order(-new_match_data$win_percentage),]
-print(sorted_data[0:10,])
+barplot(sorted_data[0:10,]$win_percentage, names.arg=sorted_data[0:10,]$team_name, col = "blue")
