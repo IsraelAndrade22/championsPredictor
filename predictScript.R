@@ -1,7 +1,7 @@
 
 library(DBI)
 
-db <- dbConnect(RSQLite::SQLite(),"./database.sqlite")
+db <- dbConnect(RSQLite::SQLite(),"database.sqlite")
 
 Country <- dbGetQuery(db,"Select * from Country")
 Match <- dbGetQuery(db,"Select * from Match")
@@ -10,13 +10,15 @@ Team <- dbGetQuery(db,"Select * from Team")
 
 head(Match)
 
-# replace all NAs with 0s
+#replace all NAs with 0s
 Match = replace(Match, is.na(Match), 0)
 Team = replace(Team, is.na(Team), 0)
+
 
 summary(Match)
 summary(Team)
 str(Match)
+
 
 #Count the number of matches the particular team played at home
 home_match = as.data.frame(table(Match$home_team_api_id))
@@ -46,20 +48,20 @@ for(row1 in rownames(new_match_data))
   new_match_data$team_name[as.numeric(row1)] <- Team$team_long_name[Team$team_api_id==new_match_data$home_team_api_id[as.numeric(row1)]]
 }
 
-#Iterate over all the teams ids 
+#Iterate over all the teams ids
 for(id in rownames(new_match_data))
 {
   #win_count stores the number of wins if the current team has scored more goals than the opponent team.
-  win_count = 0 
+  win_count = 0
   #Find all the records in main "Match" table which match the current team id
   home_indexes = which(Match$home_team_api_id == new_match_data$home_team_api_id[as.numeric(id)])
   away_indexes = which(Match$away_team_api_id == new_match_data$away_team_api_id[as.numeric(id)])
-  
+
   for(i in home_indexes)
   {
     if(Match$home_team_goal[i]>Match$away_team_goal[i])
     {
-      win_count = win_count +1 
+      win_count = win_count +1
     }
   }
   for(i in away_indexes)
@@ -69,7 +71,7 @@ for(id in rownames(new_match_data))
       win_count = win_count + 1
     }
   }
-  
+
   new_match_data$wins[as.numeric(id)] <- win_count
   new_match_data$win_percentage[as.numeric(id)] <- as.double(win_count/new_match_data$total_matches[as.numeric(id)]*100)
 }
@@ -81,20 +83,20 @@ names(new_match_data)[names(new_match_data)=="home_team_api_id"]<-"team_id"
 
 #Sort the teams based on the winning percentage
 sorted_data <- new_match_data[order(-new_match_data$win_percentage),]
-barplot(sorted_data[0:10,]$win_percentage, names.arg=sorted_data[0:10,]$team_name, col = "blue")
+barplot(sorted_data[0:10,]$win_percentage, names.arg=sorted_data[0:10,]$team_name, las = 2, col = "blue", main = "Top 10 winning percentages")
 
 
 #Find Best teams in England's England Premier League
 english_team <- sorted_data[sorted_data$country=="England",]
 england <- english_team[order(-english_team$win_percentage),][1:10,]
-barplot(england$win_percentage, names.arg=england$team_name, col = "blue")
+barplot(england$win_percentage, names.arg=england$team_name, las = 2, col = "blue", main = "Top 10 teams in Premier League")
 
 #Find the top teams from spain league
 spain_teams <- sorted_data[sorted_data$country=="Spain",]
 spain <- spain_teams[order(-spain_teams$win_percentage),][1:10,]
-barplot(spain$win_percentage, names.arg=spain$team_name, col = "blue")
-
+barplot(spain$win_percentage, names.arg=spain$team_name, las = 2, col = "blue", main = "Top 10 teams in Bundesliga League")
+axis(1,cex.axis=1)
 #Find top teams in Germany's l Bundesliga League
 german_team <- sorted_data[sorted_data$country=="Germany",]
 germany <- german_team[order(-german_team$win_percentage),][1:10,]
-barplot(germany$win_percentage, names.arg=germany$team_name, col = "blue")
+barplot(germany$win_percentage, names.arg=germany$team_name, las = 2, col = "blue", main = "Top 10 teams in Bundesliga League")
