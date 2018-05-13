@@ -17,13 +17,12 @@ This project tries to predicted how well a European team is set to perform in th
 ```{r}
 library(DBI)
 db <- dbConnect(RSQLite::SQLite(),"database.sqlite")
-
 Country <- dbGetQuery(db,"Select * from Country")
 Match <- dbGetQuery(db,"Select * from Match")
 League <- dbGetQuery(db,"Select * from League")
 Team <- dbGetQuery(db,"Select * from Team")
 
-head(Match)
+#head(Match,100)
 
 Match[12:78] = NULL
 Match[19:48] = NULL
@@ -107,22 +106,26 @@ names(new_match_data)[names(new_match_data)=="home_team_api_id"]<-"team_id"
 
 
 ##Data exploration and visualization: 
-
-
-##Title
+##Top ten winning percentages of European teams
 ###Description:
-
-###Results: 
+Based of the data collected for each team the percentage of winning percentage for the top ten teams were ploted using a barplot. The data used was from all 
+Europeans teams which include Spain, UK, Germany, etc.
+###Results:
+The results from the barplot illustrate that Barcelona, Madrid CF, SL Benfica, FC Porto, Celtic, Rangers, Munich, Ajax, PSV, Anderlecht were the 
+teams with the best performance in all of Europe
 ``` {r}
 #Sort the teams based on the winning percentage
 sorted_data <- new_match_data[order(-new_match_data$win_percentage),]
 barplot(sorted_data[0:10,]$win_percentage, names.arg=sorted_data[0:10,]$team_name, ylab = "Winning Percentage", las = 2, col = "blue", main = "Top 10 winning percentages")
 ```
 
-##Title
+##Top ten teams in the Premier League
 ###Description:
+The top ten teams with the best winning percentages from the Premier League are displayed on a barplot to illustrate how likely a team from 
+the Premier League team will win
 
 ###Results: 
+From the barplot teams like Manchester United and Chelsea have a more likely change to win compared to other teams like Liverpool or Everton
 ```{r}
 #Find Best teams in England's England Premier League
 english_team <- sorted_data[sorted_data$country=="England",]
@@ -131,21 +134,24 @@ barplot(england$win_percentage, names.arg=england$team_name, ylab = "Winning Per
 
 ```
 
-##Title
+##Top ten teams in La Liga League
 ###Description:
-
+The top ten teams with the best winning percentages from the La Liga are displayed on a barplot to illustrate how likely a team from 
+the La Liga team will win
 ###Results: 
+From the barplot teams like Barcelona and Real Madrid have the best winning percentange compared to Celta de Vigo or Athletic Bilbao
 ```{r}
 #Find the top teams from spain league
 spain_teams <- sorted_data[sorted_data$country=="Spain",]
 spain <- spain_teams[order(-spain_teams$win_percentage),][1:10,]
-barplot(spain$win_percentage, names.arg=spain$team_name, ylab = "Winning Percentage", las = 2, col = "blue", main = "Top 10 teams in Bundesliga League")
+barplot(spain$win_percentage, names.arg=spain$team_name, ylab = "Winning Percentage", las = 2, col = "blue", main = "Top 10 teams in La Liga League")
 axis(1,cex.axis=1)
 ```
-##Title
+##Top ten teams in the Bundesliga League
 ###Description:
-
+The top ten teams with the best winning percentage in the Bundesliga are illustrated in the barplot. 
 ###Results: 
+Teams like Bayern and Dortmund have a better winning percentage than that of Hannover 96 or Hamburger SV
 ```{r}
 #Find top teams in Germany's l Bundesliga League
 german_team <- sorted_data[sorted_data$country=="Germany",]
