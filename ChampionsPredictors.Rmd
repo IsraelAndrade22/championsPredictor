@@ -16,7 +16,8 @@ This project tries to predicted how well a European team is set to perform in th
 ###Data Cleaning: 
 ```{r}
 library(DBI)
-db <- dbConnect(RSQLite::SQLite(),"database.sqlite")
+#db <- dbConnect(RSQLite::SQLite(),"database.sqlite")
+db <- dbConnect(RSQLite::SQLite(),"/Users/israel_andrade/Documents/spring2018/data_science/soccer_project/database.sqlite")
 Country <- dbGetQuery(db,"Select * from Country")
 Match <- dbGetQuery(db,"Select * from Match")
 League <- dbGetQuery(db,"Select * from League")
@@ -102,10 +103,22 @@ names(new_match_data)[names(new_match_data)=="home_team_api_id"]<-"team_id"
 ##Data: 
 
 
-##Initial data exploration: 
-
-
 ##Data exploration and visualization: 
+
+##Total wins for home teams vs losses
+###Description:
+Based on all the data collected from each European Soccer League a barplot was constructed to graph the total wins of home and away teams. This was done
+to view if home teams are more likely to win a game versus playing an away team
+###Result:
+Home teams had an overall advatange when playing in their stadium versus team who were playing away. Home teams had the most wins compared to away teams
+```{r}
+noDraws = Match[Match$home_team_goal != Match$away_team_goal,]
+typeOfWins = noDraws$home_team_goal > noDraws$away_team_goal
+HomeWinsAndLosses = table(typeOfWins)
+names(HomeWinsAndLosses) = c("Away Win", "Home Win")
+barplot(HomeWinsAndLosses,ylab = "Wins", col = "blue", main = "Total wins for home teams and away teams")
+```
+
 ##Top ten winning percentages of European teams
 ###Description:
 Based of the data collected for each team the percentage of winning percentage for the top ten teams were ploted using a barplot. The data used was from all 
