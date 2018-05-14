@@ -18,6 +18,7 @@ This project tries to predicted how well a European team is set to perform in th
 library(DBI)
 library(e1071)
 db <- dbConnect(RSQLite::SQLite(),"database.sqlite")
+#db <- dbConnect(RSQLite::SQLite(),"/Users/michaelsanchez/Documents/Data Science/finalProject/database.sqlite")
 Country <- dbGetQuery(db,"Select * from Country")
 Match <- dbGetQuery(db,"Select * from Match")
 League <- dbGetQuery(db,"Select * from League")
@@ -162,7 +163,7 @@ for(i in teamIds)
 #noDraws$homeDefenseAggression
 #print(noDraws)
 ```
-#splitting data into training and test sets
+#Splitting data into training and test sets
 ```{r}
 noDraws = na.omit(noDraws)
 tr_rows = sample(nrow(noDraws), nrow(noDraws)*.8)
@@ -181,10 +182,10 @@ accuracy
 ```
 
 ##Top ten winning percentages of European teams
-###Description:
+##Description:
 Based of the data collected for each team the percentage of winning percentage for the top ten teams were ploted using a barplot. The data used was from all 
 Europeans teams which include Spain, UK, Germany, etc.
-###Results:
+##Results:
 The results from the barplot illustrate that Barcelona, Madrid CF, SL Benfica, FC Porto, Celtic, Rangers, Munich, Ajax, PSV, Anderlecht were the 
 teams with the best performance in all of Europe
 ``` {r}
@@ -241,3 +242,4 @@ barplot(germany$win_percentage, names.arg=germany$team_name, ylab = "Winning Per
 ```
 
 ###Conclusion: 
+After exploring this european soccer data set, we realized that that team that plays at home gets more wins than those who play away. It seems as if you get an extra boost from having your fans supporting you at your home stadium. Those wins that came from the away teams were done by teams who always rank top 3 in the leagues we explored. For example, Bayern Munich as a top team from the German Bundesliga team has alot of away games won. This is because they have alot of better international players in their roster and home field advantage wont make a difference when they play vs a bottm half of the table team.
