@@ -11,10 +11,9 @@ Team_Attributes <- dbGetQuery(db,"Select * from Team_Attributes")
 
 head(Match)
 
-
-
+head(Match$shoton, 10)
 Match[12:78] = NULL
-Match[19:48] = NULL
+Match[19:48] = NULL           
 
 #  convert columns 12 -18 to numeric
 Match[, 12:18] <- sapply(Match[, 12:18], as.numeric)

@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 ```
 
 ##Introduction: 
@@ -16,14 +16,13 @@ This project tries to predicted how well a European team is set to perform in th
 ###Data Cleaning: 
 ```{r}
 library(DBI)
-#db <- dbConnect(RSQLite::SQLite(),"database.sqlite")
-db <- dbConnect(RSQLite::SQLite(),"/Users/israel_andrade/Documents/spring2018/data_science/soccer_project/database.sqlite")
+library(e1071)
+db <- dbConnect(RSQLite::SQLite(),"database.sqlite")
 Country <- dbGetQuery(db,"Select * from Country")
 Match <- dbGetQuery(db,"Select * from Match")
 League <- dbGetQuery(db,"Select * from League")
 Team <- dbGetQuery(db,"Select * from Team")
-
-#head(Match,100)
+Team_Attributes <- dbGetQuery(db, "Select * from Team_Attributes")
 
 Match[12:78] = NULL
 Match[19:48] = NULL
@@ -94,14 +93,7 @@ for(id in rownames(new_match_data))
   new_match_data$win_percentage[as.numeric(id)] <- as.double(win_count/new_match_data$total_matches[as.numeric(id)]*100)
 }
 
-#Drop Away_team_id column and change home_team_api_id columns name to team_id
-drop_columns <- c("away_team_api_id")
-new_match_data <- new_match_data[ , !names(new_match_data) %in% drop_columns]
-names(new_match_data)[names(new_match_data)=="home_team_api_id"]<-"team_id"
 ```
-
-##Data: 
-
 
 ##Data exploration and visualization: 
 
@@ -119,6 +111,75 @@ names(HomeWinsAndLosses) = c("Away Win", "Home Win")
 barplot(HomeWinsAndLosses,ylab = "Wins", col = "blue", main = "Total wins for home teams and away teams")
 ```
 
+##Home and Away Wins 
+###Description:
+The Frequency of home and away wins for each match
+###Result:
+Home teams seems to have more wins than those of a team playing as visitors
+```{r}
+#names(Team_Attributes)
+#sum(is.na(Team_Attributes))
+Team_Attributes = na.omit(Team_Attributes)
+
+noDraws$homeWin = noDraws$home_team_goal > noDraws$away_team_goal
+#head(noDraws$homeWin, 10)
+noDraws$output = factor(noDraws$homeWin, labels=c("Away Win", "Home Win"))
+#head(noDraws$output, 10)
+
+#names(Match)
+#names(Team_Attributes)
+#head(Team_Attributes$chanceCreationShooting, 10)
+#head(Team_Attributes$defencePressure, 10)
+#head(Match$away_team_api_id, 10)
+#head(Match$home_team_api_id,10)
+
+#noDraws
+teamIds = unique(Team_Attributes$team_api_id)
+temp = Team_Attributes[!duplicated(Team_Attributes$team_api_id),]
+teamIds = temp$team_api_id
+#print(temp)
+noDraws$awayDefenseAggression = 0
+noDraws$homeDefenseAggression = 0
+for(i in teamIds)
+{
+  if(!is.na(noDraws$away_team_api_id == i))
+  {
+    #print(i)
+    key = i
+    #print(temp[temp$team_api_id == key,]$defenceAggression)
+    noDraws[noDraws$away_team_api_id == key,]$awayDefenseAggression = temp[temp$team_api_id == as.numeric(key),]$defenceAggression
+  }
+  if(!is.na(noDraws$home_team_api_id == i))
+  {
+    #print(i)
+    key = i
+    #print(temp[temp$team_api_id == key,]$defenceAggression)
+    noDraws[noDraws$home_team_api_id == key,]$homeDefenseAggression = temp[temp$team_api_id == as.numeric(key),]$defenceAggression
+    
+  }
+}
+#noDraws$awayDefenseAggression
+#noDraws$homeDefenseAggression
+#print(noDraws)
+```
+#splitting data into training and test sets
+```{r}
+noDraws = na.omit(noDraws)
+tr_rows = sample(nrow(noDraws), nrow(noDraws)*.8)
+tr_dat = noDraws[tr_rows,]
+te_dat = noDraws[-tr_rows,]
+```
+
+```{r}
+actual = te_dat$output
+fit = naiveBayes(output ~ homeDefenseAggression+awayDefenseAggression, data = tr_dat)
+predicted = predict(fit, newdata=te_dat, type="class")
+confusion_matrix = table(predicted, actual)
+confusion_matrix
+accuracy = mean(predicted == actual)
+accuracy
+```
+
 ##Top ten winning percentages of European teams
 ###Description:
 Based of the data collected for each team the percentage of winning percentage for the top ten teams were ploted using a barplot. The data used was from all 
@@ -127,6 +188,10 @@ Europeans teams which include Spain, UK, Germany, etc.
 The results from the barplot illustrate that Barcelona, Madrid CF, SL Benfica, FC Porto, Celtic, Rangers, Munich, Ajax, PSV, Anderlecht were the 
 teams with the best performance in all of Europe
 ``` {r}
+#Drop Away_team_id column and change home_team_api_id columns name to team_id
+drop_columns <- c("away_team_api_id")
+new_match_data <- new_match_data[ , !names(new_match_data) %in% drop_columns]
+names(new_match_data)[names(new_match_data)=="home_team_api_id"]<-"team_id"
 #Sort the teams based on the winning percentage
 sorted_data <- new_match_data[order(-new_match_data$win_percentage),]
 barplot(sorted_data[0:10,]$win_percentage, names.arg=sorted_data[0:10,]$team_name, ylab = "Winning Percentage", las = 2, col = "blue", main = "Top 10 winning percentages")
