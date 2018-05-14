@@ -168,7 +168,11 @@ tr_rows = sample(nrow(noDraws), nrow(noDraws)*.8)
 tr_dat = noDraws[tr_rows,]
 te_dat = noDraws[-tr_rows,]
 ```
-
+##Predict model based on home team winning 
+###Description
+A Predict model based on whether a home team will win on preditors such as home defense aggression and away defense aggression
+###Results
+The accuracy of our model ranged from 63% to 65% based on predictor such as home defense aggression and away defense aggression
 ```{r}
 actual = te_dat$output
 fit = naiveBayes(output ~ homeDefenseAggression+awayDefenseAggression, data = tr_dat)
@@ -179,18 +183,7 @@ accuracy = mean(predicted == actual)
 accuracy
 ```
 
-```{r}
-fit  = rpart(output ~  homeDefenseAggression, data=tr_dat, method = "class")
-prp(fit, extra=1, main="Regression tree for Games won",
-box.col=c("green", "red")[fit$frame$yval])
 
-actual = te_dat$output
-predicts = predict(fit, newdata=te_dat, type="class")
-confusion_matrix = table(predicts, actual)
-confusion_matrix
-mean(predicts == actual)
-learning_curve(actual, tr_dat, te_dat)
-```
 ##Top ten winning percentages of European teams
 ###Description:
 Based of the data collected for each team the percentage of winning percentage for the top ten teams were ploted using a barplot. The data used was from all 
