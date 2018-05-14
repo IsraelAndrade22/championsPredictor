@@ -15,6 +15,9 @@ This project tries to predicted how well a European team is set to perform in th
 
 ###Data Cleaning: 
 ```{r}
+library(rpart)
+library(rpart.plot)
+library(maptree)
 library(DBI)
 library(e1071)
 db <- dbConnect(RSQLite::SQLite(),"database.sqlite")
@@ -97,6 +100,9 @@ for(id in rownames(new_match_data))
 ```
 
 ##Data exploration and visualization: 
+From the inital observation of the four main data frames such as Match, League, Team, Team_Attributes we observed how they all correlated with each other. Match had the
+majority of information with over +25,000 entries. Values in Match include home and away team id, home goals, away goals, and league id. Team attribues had further information about the
+team such as team speed, passing rating, and defense aggression. In addition, Team_Attributes had each team assinged a class for each category in speed, passing, and defense. Values in defense range from pressing to containing and passing from organized to free-form.
 
 ##Total wins for home teams vs losses
 ###Description:
@@ -118,29 +124,19 @@ The Frequency of home and away wins for each match
 ###Result:
 Home teams seems to have more wins than those of a team playing as visitors
 ```{r}
-#names(Team_Attributes)
-#sum(is.na(Team_Attributes))
 Team_Attributes = na.omit(Team_Attributes)
 
 noDraws$homeWin = noDraws$home_team_goal > noDraws$away_team_goal
-#head(noDraws$homeWin, 10)
 noDraws$output = factor(noDraws$homeWin, labels=c("Away Win", "Home Win"))
-#head(noDraws$output, 10)
 
-#names(Match)
-#names(Team_Attributes)
-#head(Team_Attributes$chanceCreationShooting, 10)
-#head(Team_Attributes$defencePressure, 10)
-#head(Match$away_team_api_id, 10)
-#head(Match$home_team_api_id,10)
-
-#noDraws
 teamIds = unique(Team_Attributes$team_api_id)
 temp = Team_Attributes[!duplicated(Team_Attributes$team_api_id),]
 teamIds = temp$team_api_id
-#print(temp)
+
 noDraws$awayDefenseAggression = 0
 noDraws$homeDefenseAggression = 0
+noDraws$awayBuildUpPlaySpeedClass = ""
+noDraws$homeBuildUpPlaySpeedClass = ""
 for(i in teamIds)
 {
   if(!is.na(noDraws$away_team_api_id == i))
@@ -149,6 +145,7 @@ for(i in teamIds)
     key = i
     #print(temp[temp$team_api_id == key,]$defenceAggression)
     noDraws[noDraws$away_team_api_id == key,]$awayDefenseAggression = temp[temp$team_api_id == as.numeric(key),]$defenceAggression
+    noDraws[noDraws$away_team_api_id == key,]$awayBuildUpPlaySpeedClass = temp[temp$team_api_id == as.numeric(key),]$buildUpPlaySpeedClass
   }
   if(!is.na(noDraws$home_team_api_id == i))
   {
@@ -156,9 +153,11 @@ for(i in teamIds)
     key = i
     #print(temp[temp$team_api_id == key,]$defenceAggression)
     noDraws[noDraws$home_team_api_id == key,]$homeDefenseAggression = temp[temp$team_api_id == as.numeric(key),]$defenceAggression
-    
+    noDraws[noDraws$home_team_api_id == key,]$homeBuildUpPlaySpeedClass = temp[temp$team_api_id == as.numeric(key),]$buildUpPlaySpeedClass
   }
 }
+temp$buildUpPlaySpeedClass
+temp
 #noDraws$awayDefenseAggression
 #noDraws$homeDefenseAggression
 #print(noDraws)
@@ -181,6 +180,18 @@ accuracy = mean(predicted == actual)
 accuracy
 ```
 
+```{r}
+fit  = rpart(output ~  homeDefenseAggression, data=tr_dat, method = "class")
+prp(fit, extra=1, main="Regression tree for Games won",
+box.col=c("green", "red")[fit$frame$yval])
+
+actual = te_dat$output
+predicts = predict(fit, newdata=te_dat, type="class")
+confusion_matrix = table(predicts, actual)
+confusion_matrix
+mean(predicts == actual)
+learning_curve(actual, tr_dat, te_dat)
+```
 ##Top ten winning percentages of European teams
 ##Description:
 Based of the data collected for each team the percentage of winning percentage for the top ten teams were ploted using a barplot. The data used was from all 
